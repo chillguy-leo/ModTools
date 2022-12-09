@@ -5,23 +5,18 @@ namespace SCPReplacer
     public static class Util
     {
         /// <summary>
-        /// Extension method that allows extracting the SCP number from a Role
+        /// Given a stirng, capitalize the first character and make the rest lowercase.
         /// </summary>
-        /// <param name="role">a player's Role</param>
-        /// <returns>e.g. "079"</returns>
-        public static string ScpNumber(this Exiled.API.Features.Roles.Role role)
+        /// <param name="input">A string in any case</param>
+        /// <returns>The string with only the first character capitalized</returns>
+        public static string SentenceCase(this string input)
         {
-            return Regex.Replace(role.Type.ToString(), @"[^0-9]", "");
-        }
-        
-        /// <summary>
-        /// Extension method that allows extracting the SCP number from a Role name as a string
-        /// </summary>
-        /// <param name="role">a player's Role name</param>
-        /// <returns>e.g. "079"</returns>
-        public static string ScpNumber(this string role)
-        {
-            return Regex.Replace(role, @"[^0-9]", "");
+            if (string.IsNullOrEmpty(input))
+            {
+                return "";
+            }
+
+            return char.ToUpper(input[0]) + input.Substring(1).ToLower();
         }
     }
 }
