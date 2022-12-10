@@ -1,6 +1,4 @@
-﻿using System.Text.RegularExpressions;
-
-namespace SCPReplacer
+﻿namespace SCPReplacer
 {
     public static class Util
     {

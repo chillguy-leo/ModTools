@@ -2,7 +2,6 @@
 using Exiled.API.Features;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace SCPReplacer
 {
@@ -112,4 +111,40 @@ namespace SCPReplacer
             return true;
         }
     }
-}
+
+    [CommandHandler(typeof(ClientCommandHandler))]
+    public class ToggleGodmode : ICommand
+    {
+        public string Command => "godmode";
+
+        public string[] Aliases => new[] { "gm" };
+
+        public string Description => "Toggle godmode for yourself";
+
+        public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
+        {
+            var player = Player.Get(sender);
+
+            if (!sender.CheckPermission(PlayerPermissions.PlayersManagement))
+            {
+                response = Plugin.Singleton.Translation.InsufficientPermissions;
+                return false;
+            }
+
+            if (player.IsGodModeEnabled)
+            {
+                response = Plugin.Singleton.Translation.GodmodeDisabled;
+                player.IsGodModeEnabled = false;
+            }
+            else
+            {
+                response = Plugin.Singleton.Translation.GodmodeEnabled;
+                player.IsGodModeEnabled = true;
+            }
+
+            player.Broadcast(new Exiled.API.Features.Broadcast(
+                Plugin.Singleton.Translation.BroadcastHeader + response
+            ));
+            return true;
+        }
+    }

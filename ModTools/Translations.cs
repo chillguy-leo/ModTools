@@ -11,6 +11,7 @@ namespace SCPReplacer
         public string NoclipDisabled { get; set; } = "Noclip disabled";
         public string BypassEnabled { get; set; } = "Bypass enabled";
         public string BypassDisabled { get; set; } = "Bypass disabled";
+        public string GodmodeEnabled { get; set; } = "Godmode enabled";
         public string GodmodeDisabled { get; set; } = "Godmode disabled";
         public string InsufficientPermissions { get; set; } = "You do not have sufficient permissions to use this command";
 
