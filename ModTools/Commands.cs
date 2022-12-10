@@ -1,5 +1,6 @@
 ﻿using CommandSystem;
 using Exiled.API.Features;
+using MEC;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -78,7 +79,8 @@ namespace SCPReplacer
                 return false; // response already set
             }
 
-            player.Teleport(target);
+            Timing.CallDelayed(0.5f, () => player.Teleport(target) );
+  
             return true;
         }
     }
