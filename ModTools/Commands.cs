@@ -2,6 +2,7 @@
 using Exiled.API.Features;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SCPReplacer
 {
@@ -10,49 +11,15 @@ namespace SCPReplacer
     {
         public string Command => "modmode";
 
-        public string[] Aliases => new[] { "mm" };
+        public string[] Aliases => new[] { "mm", "tutorial" };
 
         public string Description => "Shortcut to disable overwatch, show tag, spawn as Tutorial, and enable noclip and bypass if able";
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (!sender.CheckPermission(PlayerPermissions.ForceclassSelf))
-            {
-                response = Plugin.Singleton.Translation.NoForceClassPerm;
-                return false;
-            }
             var player = Player.Get(sender);
-
-
-            // A list of descriptions of changes that we'll send to the user
-            var changes = new List<string>();
-
-            // Forceclass tends not to work when overwatch is enabled
-            player.IsOverwatchEnabled = false;
-            player.SetRole(RoleType.Tutorial);
-            player.BadgeHidden = false;
-            changes.Add(Plugin.Singleton.Translation.TagShown);
-
-            if (sender.CheckPermission(PlayerPermissions.Noclip))
-            {
-                player.NoClipEnabled = true;
-
-                // e.g. "Tag shown, noclip enabled"
-                changes.Add(Plugin.Singleton.Translation.NoclipEnabled);
-            }
-
-            if (sender.CheckPermission(PlayerPermissions.FacilityManagement))
-            {
-                player.IsBypassModeEnabled = true;
-                changes.Add(Plugin.Singleton.Translation.BypassEnabled);
-            }
-
-            response = String.Join(", ", changes).SentenceCase();
-
-            player.Broadcast(new Exiled.API.Features.Broadcast(
-              Plugin.Singleton.Translation.BroadcastHeader + response
-             ));
-            return true;
+            var success = player.EnableModMode(out response);
+            return success;
         }
     }
 
@@ -69,45 +36,49 @@ namespace SCPReplacer
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             var player = Player.Get(sender);
+            var success = player.DisableModMode(out response);
+            return success;
+        }
+    }
 
-            // A list of descriptions of changes that we'll send to the user
-            var changes = new List<string>();
+    [CommandHandler(typeof(ClientCommandHandler))]
+    public class ModModeTeleport : ICommand
+    {
+        public string Command => "modmodeteleport";
 
-            // Note: it would be possible to check whether e.g. noclip is already enabled
-            // (rather than just whether the user has permission); however, I've elected
-            // not to so in order for staff to not have to guess or remember whether it's
-            // still enabled. For instance, a moderator might want to use it to double check
-            // that noclip is indeed disabled.
+        public string[] Aliases => new[] { "mmtp" };
 
-            if (sender.CheckPermission(PlayerPermissions.Noclip))
+        public string Description => "Shortcut to spawn as Tutorial (via .modmode) and teleport to the player you are currently spectating";
+
+        public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
+        {
+            var player = Player.Get(sender);
+            if (player.Role != RoleType.Spectator)
             {
-                player.NoClipEnabled = false;
-                changes.Add(Plugin.Singleton.Translation.NoclipDisabled);
-            }
-
-            if (sender.CheckPermission(PlayerPermissions.FacilityManagement))
-            {
-                player.IsBypassModeEnabled = false;
-                changes.Add(Plugin.Singleton.Translation.BypassDisabled);
-            }
-
-            if (sender.CheckPermission(PlayerPermissions.PlayersManagement))
-            {
-                player.IsGodModeEnabled = false;
-                changes.Add(Plugin.Singleton.Translation.GodmodeDisabled);
-            }
-
-            if (changes.IsEmpty())
-            {
-                response = Plugin.Singleton.Translation.InsufficientPermissions;
+                response = Plugin.Singleton.Translation.NotSpectatorError;
                 return false;
             }
 
-            response = String.Join(", ", changes).SentenceCase();
+            // Now we know that, at the very least, the player can be spawned as spectator.
+            // So, we look for the player they are currently spectating
+            Player target;
+            try
+            {
+                target = Player.List.First(p => p.CurrentSpectatingPlayers.Contains(player));
+            } catch (InvalidOperationException e)
+            {
+                response = Plugin.Singleton.Translation.CantFindTargetError;
+                return false;
+            }
+            
+            var spawnSuccess = player.EnableModMode(out response);
 
-            player.Broadcast(new Exiled.API.Features.Broadcast(
-              Plugin.Singleton.Translation.BroadcastHeader + response
-             ));
+            if (!spawnSuccess)
+            {
+                return false; // response already set
+            }
+
+            player.Teleport(target);
             return true;
         }
     }
@@ -143,8 +114,38 @@ namespace SCPReplacer
             }
 
             player.Broadcast(new Exiled.API.Features.Broadcast(
-                Plugin.Singleton.Translation.BroadcastHeader + response
+                Plugin.Singleton.Translation.BroadcastHeader + response, 4
             ));
             return true;
         }
     }
+
+    [CommandHandler(typeof(ClientCommandHandler))]
+    public class Die : ICommand
+    {
+        public string Command => "die";
+
+        public string[] Aliases => new string[] { "spectator" };
+
+        public string Description => "Set your class to spectator, and disable moderation abilities (i.e., call .unmodmode)";
+
+        public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
+        {
+            var player = Player.Get(sender);
+            
+            // ForceclassSelf is checked (rather than ForceclassSpectator) because ForceclassSelf
+            // is weaker; i.e., ForceclassSelf lets you set yourself to spectator, while ForceclassSpectator
+            // lets you set other players to spectator.
+            if (!sender.CheckPermission(PlayerPermissions.ForceclassSelf))
+            {
+                response = Plugin.Singleton.Translation.InsufficientPermissions;
+                return false;
+            }
+
+            player.SetRole(RoleType.Spectator);
+
+            var success = player.DisableModMode(out response);
+            return success;
+        }
+    }
+}

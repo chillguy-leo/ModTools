@@ -14,6 +14,8 @@ namespace SCPReplacer
         public string GodmodeEnabled { get; set; } = "Godmode enabled";
         public string GodmodeDisabled { get; set; } = "Godmode disabled";
         public string InsufficientPermissions { get; set; } = "You do not have sufficient permissions to use this command";
+        public string NotSpectatorError { get; set; } = "You must be a spectator to use this command.";
+        public string CantFindTargetError { get; set; } = "Unable to locate the spectated player.";
 
 
         public string BroadcastHeader { get; set; } = "<color=yellow>[Chaos Theory Mod Tools]</color>\n";
