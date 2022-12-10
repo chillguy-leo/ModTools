@@ -16,6 +16,7 @@ namespace SCPReplacer
         public string InsufficientPermissions { get; set; } = "You do not have sufficient permissions to use this command";
         public string NotSpectatorError { get; set; } = "You must be a spectator to use this command.";
         public string CantFindTargetError { get; set; } = "Unable to locate the spectated player.";
+        public string TargetDiedError { get; set; } = "The spectated player is no longer alive.";
 
 
         public string BroadcastHeader { get; set; } = "<color=yellow>[Chaos Theory Mod Tools]</color>\n";

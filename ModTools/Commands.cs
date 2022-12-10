@@ -62,16 +62,13 @@ namespace SCPReplacer
 
             // Now we know that, at the very least, the player can be spawned as spectator.
             // So, we look for the player they are currently spectating
-            Player target;
-            try
-            {
-                target = Player.List.First(p => p.CurrentSpectatingPlayers.Contains(player));
-            } catch (InvalidOperationException e)
+            var target = player.FindSpectatingTargetOrNull();
+            if (target == null)
             {
                 response = Plugin.Singleton.Translation.CantFindTargetError;
                 return false;
             }
-            
+
             var spawnSuccess = player.EnableModMode(out response);
 
             if (!spawnSuccess)
@@ -79,8 +76,31 @@ namespace SCPReplacer
                 return false; // response already set
             }
 
-            Timing.CallDelayed(0.5f, () => player.Teleport(target) );
-  
+            // Originally, we would teleport the player immediately after spawning.
+            // However, this was causing issues wherein sometimes the player wouldn't
+            // spawn in fast enough and would "miss" the teleport.
+            // A delay of 0.5 seconds was found to alleviate this problem, and has been
+            // bumped to 1.0 second in an excess of caution.
+            Timing.CallDelayed(1.0f, () =>
+            {
+                // There is unfortunately a small chance that the target disconnects or dies in this
+                // window before the teleport occurs, so we handle that case defensively.
+                if (target.IsAlive)
+                {
+                    player.Teleport(target);
+                }
+                else
+                {
+                    player.Broadcast(new Exiled.API.Features.Broadcast(
+                        Plugin.Singleton.Translation.BroadcastHeader
+                        + Plugin.Singleton.Translation.TargetDiedError
+                    ));
+                    // Due to the async nature of this lambda, we cannot modify the response or
+                    // success boolean (though doing so is not strictly necessary as the response
+                    // still describes the enabling of modmode)
+                }
+            });
+
             return true;
         }
     }
@@ -134,7 +154,7 @@ namespace SCPReplacer
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             var player = Player.Get(sender);
-            
+
             // ForceclassSelf is checked (rather than ForceclassSpectator) because ForceclassSelf
             // is weaker; i.e., ForceclassSelf lets you set yourself to spectator, while ForceclassSpectator
             // lets you set other players to spectator.
