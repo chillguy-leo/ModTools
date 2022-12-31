@@ -1,6 +1,7 @@
 ﻿using CommandSystem;
 using Exiled.API.Features;
 using MEC;
+using PlayerRoles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,7 +55,7 @@ namespace SCPReplacer
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             var player = Player.Get(sender);
-            if (player.Role != RoleType.Spectator)
+            if (player.Role != RoleTypeId.Spectator && player.Role != RoleTypeId.Overwatch)
             {
                 response = Plugin.Singleton.Translation.NotSpectatorError;
                 return false;
@@ -164,7 +165,7 @@ namespace SCPReplacer
                 return false;
             }
 
-            player.SetRole(RoleType.Spectator);
+            player.Role.Set(RoleTypeId.Spectator);
 
             var success = player.DisableModMode(out response);
             return success;

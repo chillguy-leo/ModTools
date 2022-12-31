@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System;
 using Exiled.Permissions.Extensions;
 using System.Linq;
+using PlayerRoles;
+using PlayerRoles.FirstPersonControl;
 
 namespace SCPReplacer
 {
@@ -36,13 +38,13 @@ namespace SCPReplacer
 
             // Forceclass tends not to work when overwatch is enabled
             player.IsOverwatchEnabled = false;
-            player.SetRole(RoleType.Tutorial);
+            player.Role.Set(RoleTypeId.Tutorial);
             player.BadgeHidden = false;
             changes.Add(Plugin.Singleton.Translation.TagShown);
 
             if (player.CheckPermission(PlayerPermissions.Noclip))
             {
-                player.NoClipEnabled = true;
+                FpcNoclip.PermitPlayer(player.ReferenceHub);
                 changes.Add(Plugin.Singleton.Translation.NoclipEnabled);
             }
 
@@ -73,7 +75,7 @@ namespace SCPReplacer
 
             if (player.CheckPermission(PlayerPermissions.Noclip))
             {
-                player.NoClipEnabled = false;
+                FpcNoclip.UnpermitPlayer(player.ReferenceHub);
                 changes.Add(Plugin.Singleton.Translation.NoclipDisabled);
             }
 

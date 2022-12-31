@@ -15,7 +15,7 @@ namespace SCPReplacer
         public string GodmodeDisabled { get; set; } = "Godmode disabled";
         public string InsufficientPermissions { get; set; } = "You do not have sufficient permissions to use this command";
         public string NotSpectatorError { get; set; } = "You must be a spectator to use this command.";
-        public string CantFindTargetError { get; set; } = "Unable to locate the spectated player.";
+        public string CantFindTargetError { get; set; } = "Please ensure you are spectating a specific player (rather than the default spectator view) first before running this command.";
         public string TargetDiedError { get; set; } = "The spectated player is no longer alive.";
 
 

@@ -1,5 +1,6 @@
 ﻿using Exiled.API.Features;
 using Exiled.Events.EventArgs;
+using Exiled.Events.EventArgs.Player;
 using System;
 
 namespace SCPReplacer
@@ -42,7 +43,7 @@ namespace SCPReplacer
         public void OnKick(KickedEventArgs args)
         {
             var message = Translation.KickNotification
-                .Replace("%USER", args.Target.Nickname)
+                .Replace("%USER%", args.Player.Nickname)
                 .Replace("%REASON%", args.Reason);
             Map.Broadcast(new Exiled.API.Features.Broadcast(message, 5, true, Broadcast.BroadcastFlags.AdminChat));
         }
