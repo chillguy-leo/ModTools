@@ -3,8 +3,6 @@ using Exiled.API.Features;
 using MEC;
 using PlayerRoles;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace SCPReplacer
 {
@@ -69,6 +67,13 @@ namespace SCPReplacer
                 response = Plugin.Singleton.Translation.CantFindTargetError;
                 return false;
             }
+            // I don't know why this would happen, but it has (possibly due to some Exiled bugginess or something else)
+            // so here is a defense for it.
+            if (target.Id == player.Id)
+            {
+                response = Plugin.Singleton.Translation.TargetIsSelfError;
+                return false;
+            }
 
             var spawnSuccess = player.EnableModMode(out response);
 
@@ -86,19 +91,28 @@ namespace SCPReplacer
             {
                 // There is unfortunately a small chance that the target disconnects or dies in this
                 // window before the teleport occurs, so we handle that case defensively.
-                if (target.IsAlive)
-                {
-                    player.Teleport(target);
-                }
-                else
+                if (target == null || !target.IsAlive)
                 {
                     player.Broadcast(new Exiled.API.Features.Broadcast(
-                        Plugin.Singleton.Translation.BroadcastHeader
+                    Plugin.Singleton.Translation.BroadcastHeader
                         + Plugin.Singleton.Translation.TargetDiedError
                     ));
                     // Due to the async nature of this lambda, we cannot modify the response or
                     // success boolean (though doing so is not strictly necessary as the response
                     // still describes the enabling of modmode)
+                }
+                else if (target.Id == player.Id)
+                {
+                    // This should never happen due to the earlier checks. (Added for defensiveness)
+                    player.Broadcast(new Exiled.API.Features.Broadcast(
+                    Plugin.Singleton.Translation.BroadcastHeader
+                        + Plugin.Singleton.Translation.TargetIsSelfError
+                    ));
+                }
+                else
+                {
+                    // If no problems
+                    player.Teleport(target);
                 }
             });
 

@@ -1,10 +1,10 @@
 ﻿using Exiled.API.Features;
-using System.Collections.Generic;
-using System;
 using Exiled.Permissions.Extensions;
-using System.Linq;
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SCPReplacer
 {
