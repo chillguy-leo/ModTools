@@ -116,7 +116,7 @@ namespace SCPReplacer
         {
             try
             {
-                return Player.List.First(p => p.CurrentSpectatingPlayers.Contains(player));
+                return Player.List.First(p => p != player && p.CurrentSpectatingPlayers.Contains(player));
             }
             catch
             {
