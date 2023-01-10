@@ -1,6 +1,6 @@
 ﻿using Exiled.API.Interfaces;
 
-namespace SCPReplacer
+namespace ModTools
 {
     public class Translations : ITranslation
     {

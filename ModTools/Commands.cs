@@ -4,7 +4,7 @@ using MEC;
 using PlayerRoles;
 using System;
 
-namespace SCPReplacer
+namespace ModTools
 {
     [CommandHandler(typeof(ClientCommandHandler))]
     public class ModMode : ICommand

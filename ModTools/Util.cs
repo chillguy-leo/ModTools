@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SCPReplacer
+namespace ModTools
 {
     public static class Util
     {

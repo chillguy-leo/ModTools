@@ -2,7 +2,7 @@
 using Exiled.Events.EventArgs.Player;
 using System;
 
-namespace SCPReplacer
+namespace ModTools
 {
     public class Plugin : Plugin<Config, Translations>
     {
