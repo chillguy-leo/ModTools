@@ -1,6 +1,8 @@
 ﻿using Exiled.API.Features;
 using Exiled.Events.EventArgs.Player;
+using RemoteAdmin;
 using System;
+using System.Linq;
 
 namespace ModTools
 {
@@ -44,7 +46,13 @@ namespace ModTools
             var message = Translation.KickNotification
                 .Replace("%USER%", args.Player.Nickname)
                 .Replace("%REASON%", args.Reason);
-            Map.Broadcast(new Exiled.API.Features.Broadcast(message, 5, true, Broadcast.BroadcastFlags.AdminChat));
+
+            var moderators = Player.List.Where(p => CommandProcessor.CheckPermissions(p.Sender, PlayerPermissions.KickingAndShortTermBanning));
+
+            foreach (Player moderator in moderators)
+            {
+                moderator.Broadcast(10, message, Broadcast.BroadcastFlags.AdminChat);
+            }
         }
     }
 }
