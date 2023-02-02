@@ -43,6 +43,9 @@ namespace ModTools
 
         public void OnKick(KickedEventArgs args)
         {
+            if (args == null || args.Player == null || args.Player.Nickname == null || args.Reason == null)
+                return;
+
             var message = Translation.KickNotification
                 .Replace("%USER%", args.Player.Nickname)
                 .Replace("%REASON%", args.Reason);
