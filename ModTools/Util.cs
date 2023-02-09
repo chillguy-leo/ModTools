@@ -25,7 +25,7 @@ namespace ModTools
             return char.ToUpper(input[0]) + input.Substring(1).ToLower();
         }
 
-        public static bool EnableModMode(this Player player, out string response)
+        public static bool EnableModMode(this Player player, out string response, bool retainPosition = false)
         {
             if (!player.CheckPermission(PlayerPermissions.ForceclassSelf))
             {
@@ -38,7 +38,9 @@ namespace ModTools
 
             // Forceclass tends not to work when overwatch is enabled
             player.IsOverwatchEnabled = false;
-            player.Role.Set(RoleTypeId.Tutorial);
+
+            var spawnFlags = retainPosition ? RoleSpawnFlags.AssignInventory : RoleSpawnFlags.All;
+            player.Role.Set(RoleTypeId.Tutorial, Exiled.API.Enums.SpawnReason.ForceClass, spawnFlags);
             player.BadgeHidden = false;
             changes.Add(Plugin.Singleton.Translation.TagShown);
 

@@ -23,6 +23,23 @@ namespace ModTools
         }
     }
 
+    [CommandHandler(typeof(ClientCommandHandler))]
+    public class ModModeHere : ICommand
+    {
+        public string Command => "modmodehere";
+
+        public string[] Aliases => new[] { "mmh", "tutorialhere" };
+
+        public string Description => "Same as .modmode, but retains your current location instead of spawning you in the tower";
+
+        public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
+        {
+            var player = Player.Get(sender);
+            var success = player.EnableModMode(out response, true);
+            return success;
+        }
+    }
+
 
     [CommandHandler(typeof(ClientCommandHandler))]
     public class UnModMode : ICommand
