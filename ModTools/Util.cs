@@ -54,6 +54,12 @@ namespace ModTools
                 changes.Add(Plugin.Singleton.Translation.BypassEnabled);
             }
 
+            if (player.CheckPermission(PlayerPermissions.PlayersManagement))
+            {
+                player.IsGodModeEnabled = true;
+                changes.Add(Plugin.Singleton.Translation.GodmodeEnabled);
+            }
+
             response = String.Join(", ", changes).SentenceCase();
 
             player.Broadcast(new Exiled.API.Features.Broadcast(
