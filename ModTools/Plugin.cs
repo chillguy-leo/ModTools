@@ -50,7 +50,7 @@ namespace ModTools
                 .Replace("%USER%", args.Player.Nickname)
                 .Replace("%REASON%", args.Reason);
 
-            var moderators = Player.List.Where(p => CommandProcessor.CheckPermissions(p.Sender, PlayerPermissions.KickingAndShortTermBanning));
+            var moderators = Player.List.Where(p => p != null && p.Sender != null && CommandProcessor.CheckPermissions(p.Sender, PlayerPermissions.KickingAndShortTermBanning));
 
             foreach (Player moderator in moderators)
             {
