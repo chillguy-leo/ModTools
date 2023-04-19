@@ -202,4 +202,35 @@ namespace ModTools
             return success;
         }
     }
+
+
+    [CommandHandler(typeof(ClientCommandHandler))]
+    public class GotoRoom : ICommand
+    {
+        public string Command => "goto";
+
+        public string[] Aliases => new string[] { "g" };
+
+        public string Description => "Go to the room or player whose name contains all of the arguments you provide. E.g. \".goto lcz a\" will take you to LCZ_ChkpA";
+
+        public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
+        {
+
+            var player = Player.Get(sender);
+
+            // ForceclassSelf is checked (rather than ForceclassSpectator) because ForceclassSelf
+            // is weaker; i.e., ForceclassSelf lets you set yourself to spectator, while ForceclassSpectator
+            // lets you set other players to spectator.
+            if (!sender.CheckPermission(PlayerPermissions.ForceclassSelf))
+            {
+                response = Plugin.Singleton.Translation.InsufficientPermissions;
+                return false;
+            }
+
+            player.Role.Set(RoleTypeId.Spectator);
+
+            var success = player.DisableModMode(out response);
+            return success;
+        }
+    }
 }

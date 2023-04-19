@@ -1,4 +1,6 @@
 ﻿using Exiled.API.Features;
+using Exiled.CustomRoles.API;
+using Exiled.CustomRoles.API.Features;
 using Exiled.Permissions.Extensions;
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
@@ -32,6 +34,9 @@ namespace ModTools
                 response = Plugin.Singleton.Translation.NoForceClassPerm;
                 return false;
             }
+
+            foreach (CustomRole role in player.GetCustomRoles())
+                role.RemoveRole(player);
 
             // A list of descriptions of changes that we'll send to the user
             var changes = new List<string>();

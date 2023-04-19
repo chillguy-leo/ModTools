@@ -1,6 +1,5 @@
 ﻿using Exiled.API.Features;
 using Exiled.Events.EventArgs.Player;
-using RemoteAdmin;
 using System;
 using System.Linq;
 
@@ -50,7 +49,7 @@ namespace ModTools
                 .Replace("%USER%", args.Player.Nickname)
                 .Replace("%REASON%", args.Reason);
 
-            var moderators = Player.List.Where(p => p != null && p.Sender != null && CommandProcessor.CheckPermissions(p.Sender, PlayerPermissions.KickingAndShortTermBanning));
+            var moderators = Player.List.Where(p => p != null && p.Sender != null && p.RemoteAdminAccess);
 
             foreach (Player moderator in moderators)
             {
