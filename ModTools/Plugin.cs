@@ -1,7 +1,9 @@
 ﻿using Exiled.API.Features;
 using Exiled.Events.EventArgs.Player;
 using System;
+using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace ModTools
 {
@@ -24,6 +26,7 @@ namespace ModTools
 
             // Register event handlers
             Exiled.Events.Handlers.Player.Kicked += OnKick;
+            Exiled.Events.Handlers.Server.RestartingRound += OnRestartingRound;
 
             base.OnEnabled();
         }
@@ -32,12 +35,37 @@ namespace ModTools
         {
             // Deregister event handlers
             Exiled.Events.Handlers.Player.Kicked -= OnKick;
+            Exiled.Events.Handlers.Server.RestartingRound -= OnRestartingRound;
+
 
             // This will prevent commands and other classes from being able to access
             // any state while the plugin is disabled
             Singleton = null;
 
             base.OnDisabled();
+        }
+
+        const string ServerStartTimestampFilename = "RoundStartTimestamp";
+
+        public DateTime serverStartTime = DateTime.Now;
+        public bool restartTriggered = false;
+
+        public void OnRestartingRound()
+        {
+            if (restartTriggered)
+                return;
+            var dir = new DirectoryInfo("../.config/EXILED/Plugins");
+            var updatedPlugins = dir.EnumerateFiles().Where(f => f.Name.EndsWith(".dll") && f.LastWriteTime > serverStartTime).Select(f => f.Name);
+            if (updatedPlugins.IsEmpty())
+            {
+                Log.Info("No plugins have been updated since round start.");
+            }
+            else
+            {
+                Log.Info($"The following plugins have been updated since last restart: {updatedPlugins}. Restarting the server to reload the plugins.");
+                restartTriggered = true;
+                Server.Restart();
+            }
         }
 
         public void OnKick(KickedEventArgs args)
