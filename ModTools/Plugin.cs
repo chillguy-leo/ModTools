@@ -1,9 +1,10 @@
 ﻿using Exiled.API.Features;
+using Exiled.CustomRoles.API;
 using Exiled.Events.EventArgs.Player;
+using PlayerRoles;
 using System;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 
 namespace ModTools
 {
@@ -26,6 +27,7 @@ namespace ModTools
 
             // Register event handlers
             Exiled.Events.Handlers.Player.Kicked += OnKick;
+            Exiled.Events.Handlers.Player.ReceivingEffect += OnReceivingEffect;
             Exiled.Events.Handlers.Server.RestartingRound += OnRestartingRound;
 
             base.OnEnabled();
@@ -35,6 +37,7 @@ namespace ModTools
         {
             // Deregister event handlers
             Exiled.Events.Handlers.Player.Kicked -= OnKick;
+            Exiled.Events.Handlers.Player.ReceivingEffect -= OnReceivingEffect;
             Exiled.Events.Handlers.Server.RestartingRound -= OnRestartingRound;
 
 
@@ -83,6 +86,12 @@ namespace ModTools
             {
                 moderator.Broadcast(10, message, Broadcast.BroadcastFlags.AdminChat);
             }
+        }
+
+        public void OnReceivingEffect(ReceivingEffectEventArgs ev)
+        {
+            if (ev.Player.Role == RoleTypeId.Tutorial && ev.Player.GetCustomRoles().IsEmpty() && ev.Effect.Classification is CustomPlayerEffects.StatusEffectBase.EffectClassification.Negative)
+                ev.IsAllowed = false;
         }
     }
 }
