@@ -1,8 +1,11 @@
 ﻿using CommandSystem;
 using Exiled.API.Features;
+using Exiled.API.Features.Items;
+using Exiled.API.Features.Pickups;
 using MEC;
 using PlayerRoles;
 using System;
+using UnityEngine;
 
 namespace ModTools
 {
@@ -203,34 +206,127 @@ namespace ModTools
         }
     }
 
+    [CommandHandler(typeof(RemoteAdminCommandHandler))]
+    public class Prop : ICommand
+    {
+        public string Command => "prop";
+
+        public string[] Aliases => new string[] { "pr" };
+
+        public string Description => "Spawn in a prop";
+
+        public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
+        {
+            if (!sender.CheckPermission(PlayerPermissions.GivingItems))
+            {
+                response = "Unauthorized";
+                return false;
+            }
+            if (arguments.Count < 2)
+            {
+                response = "Usage: prop <item name> <size>";
+                return false;
+            }
+            if (!Enum.TryParse(arguments.At(0), true, out ItemType itemType))
+            {
+                response = $"Invalid value for item name: {arguments.At(0)}";
+                return false;
+            }
+            if (!float.TryParse(arguments.At(1), out float scale))
+            {
+                response = $"Invalid value for item scale: {arguments.At(1)}";
+                return false;
+            }
+            if (!Player.TryGet(sender, out Player player))
+            {
+                response = "You must be in game to use this command";
+                return false;
+            }
+            if (itemType is ItemType.Flashlight)
+            {
+                var flashlight = (Flashlight)Item.Create(ItemType.Flashlight);
+                flashlight.Active = true;
+                var pickup = flashlight.CreatePickup(player.Position, player.GameObject.transform.rotation, true);
+                pickup.Scale = -1 * scale * Vector3.one;
+                Plugin.props.Add(pickup);
+            }
+            else
+            {
+                var pickup = Pickup.CreateAndSpawn(itemType, player.Position, player.GameObject.transform.rotation);
+                pickup.Scale = scale * Vector3.one;
+                Plugin.props.Add(pickup);
+            }
+            response = "Spawned in prop";
+            return true;
+        }
+    }
+
+    [CommandHandler(typeof(RemoteAdminCommandHandler))]
+    public class PurgeProps : ICommand
+    {
+        public string Command => "purgeprops";
+
+        public string[] Aliases => new string[] { "pp" };
+
+        public string Description => "Purge all props";
+
+        public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
+        {
+            if (!sender.CheckPermission(PlayerPermissions.GivingItems))
+            {
+                response = "Unauthorized";
+                return false;
+            }
+            var count = 0;
+            foreach (var pickup in Pickup.List)
+            {
+                if (Plugin.props.Contains(pickup))
+                {
+                    pickup.Destroy();
+                    count++;
+                }
+            }
+            response = $"Purged {count} prop{Util.S(count)}";
+            return true;
+        }
+    }
+
 
     [CommandHandler(typeof(ClientCommandHandler))]
     public class GotoRoom : ICommand
     {
-        public string Command => "goto";
+        public string Command => "gotoroom";
 
         public string[] Aliases => new string[] { "g" };
 
-        public string Description => "Go to the room or player whose name contains all of the arguments you provide. E.g. \".goto lcz a\" will take you to LCZ_ChkpA";
+        public string Description => "Go to a certain room";
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-
-            var player = Player.Get(sender);
-
-            // ForceclassSelf is checked (rather than ForceclassSpectator) because ForceclassSelf
-            // is weaker; i.e., ForceclassSelf lets you set yourself to spectator, while ForceclassSpectator
-            // lets you set other players to spectator.
-            if (!sender.CheckPermission(PlayerPermissions.ForceclassSelf))
+            if (!sender.CheckPermission(PlayerPermissions.Noclip))
             {
-                response = Plugin.Singleton.Translation.InsufficientPermissions;
+                response = "Insufficient permissions";
                 return false;
             }
 
-            player.Role.Set(RoleTypeId.Spectator);
+            if (!Player.TryGet(sender, out Player player))
+            {
+                response = "You must be a player to use this command";
+                return false;
+            }
 
-            var success = player.DisableModMode(out response);
-            return success;
+            var room = RoomInfo.GetRoomByName(string.Join("", arguments));
+            if (room is null)
+            {
+                response = "Can't find room by that name";
+                return false;
+            }
+            else
+            {
+                player.Teleport(room);
+                response = "Teleported";
+                return true;
+            }
         }
     }
 }

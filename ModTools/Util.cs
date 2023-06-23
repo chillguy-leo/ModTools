@@ -136,6 +136,16 @@ namespace ModTools
                 return null;
             }
         }
+
+        public static string S(int count)
+        {
+            return count switch
+            {
+                1 => "",
+                _ => "s"
+            };
+        }
+
     }
 
 

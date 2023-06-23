@@ -1,8 +1,11 @@
 ﻿using Exiled.API.Features;
+using Exiled.API.Features.Pickups;
 using Exiled.CustomRoles.API;
 using Exiled.Events.EventArgs.Player;
+using Exiled.Permissions.Extensions;
 using PlayerRoles;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -29,6 +32,7 @@ namespace ModTools
             Exiled.Events.Handlers.Player.Kicked += OnKick;
             Exiled.Events.Handlers.Player.ReceivingEffect += OnReceivingEffect;
             Exiled.Events.Handlers.Server.RestartingRound += OnRestartingRound;
+            Exiled.Events.Handlers.Player.SearchingPickup += OnPickup;
 
             base.OnEnabled();
         }
@@ -39,6 +43,8 @@ namespace ModTools
             Exiled.Events.Handlers.Player.Kicked -= OnKick;
             Exiled.Events.Handlers.Player.ReceivingEffect -= OnReceivingEffect;
             Exiled.Events.Handlers.Server.RestartingRound -= OnRestartingRound;
+            Exiled.Events.Handlers.Player.SearchingPickup -= OnPickup;
+
 
 
             // This will prevent commands and other classes from being able to access
@@ -55,6 +61,7 @@ namespace ModTools
 
         public void OnRestartingRound()
         {
+            props.Clear();
             if (restartTriggered)
                 return;
             var dir = new DirectoryInfo("../.config/EXILED/Plugins");
@@ -87,6 +94,26 @@ namespace ModTools
                 moderator.Broadcast(10, message, Broadcast.BroadcastFlags.AdminChat);
             }
         }
+
+        public void OnPickup(SearchingPickupEventArgs ev)
+        {
+            if (props.Contains(ev.Pickup))
+            {
+                if (ev.Player.CheckPermission(PlayerPermissions.GivingItems))
+                {
+                    ev.Player.ShowHint("Destroying prop");
+                    ev.Pickup.Destroy();
+                    ev.IsAllowed = false;
+                }
+                else
+                {
+                    ev.Player.ShowHint("Props can't be picked up");
+                    ev.IsAllowed = false;
+                }
+            }
+        }
+
+        public static List<Pickup> props = new();
 
         public void OnReceivingEffect(ReceivingEffectEventArgs ev)
         {
