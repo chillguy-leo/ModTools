@@ -1,4 +1,6 @@
-﻿using Exiled.API.Features;
+﻿using Exiled.API.Extensions;
+using Exiled.API.Features;
+using Exiled.API.Features.Items;
 using Exiled.API.Features.Pickups;
 using Exiled.CustomRoles.API;
 using Exiled.Events.EventArgs.Player;
@@ -33,6 +35,7 @@ namespace ModTools
             Exiled.Events.Handlers.Player.ReceivingEffect += OnReceivingEffect;
             Exiled.Events.Handlers.Server.RestartingRound += OnRestartingRound;
             Exiled.Events.Handlers.Player.SearchingPickup += OnPickup;
+            Exiled.Events.Handlers.Player.Shooting += OnShooting;
 
             base.OnEnabled();
         }
@@ -44,7 +47,7 @@ namespace ModTools
             Exiled.Events.Handlers.Player.ReceivingEffect -= OnReceivingEffect;
             Exiled.Events.Handlers.Server.RestartingRound -= OnRestartingRound;
             Exiled.Events.Handlers.Player.SearchingPickup -= OnPickup;
-
+            Exiled.Events.Handlers.Player.Shooting -= OnShooting;
 
 
             // This will prevent commands and other classes from being able to access
@@ -54,14 +57,17 @@ namespace ModTools
             base.OnDisabled();
         }
 
-        const string ServerStartTimestampFilename = "RoundStartTimestamp";
-
         public DateTime serverStartTime = DateTime.Now;
         public bool restartTriggered = false;
+
+        public static List<Player> infiniteAmmoPlayers = new();
+        public static bool infiniteAmmoForAllPlayers = false;
 
         public void OnRestartingRound()
         {
             props.Clear();
+            infiniteAmmoPlayers.Clear();
+            infiniteAmmoForAllPlayers = false;
             if (restartTriggered)
                 return;
             var dir = new DirectoryInfo("../.config/EXILED/Plugins");
@@ -117,8 +123,19 @@ namespace ModTools
 
         public void OnReceivingEffect(ReceivingEffectEventArgs ev)
         {
-            if (ev.Player.Role == RoleTypeId.Tutorial && ev.Player.GetCustomRoles().IsEmpty() && ev.Effect.Classification is CustomPlayerEffects.StatusEffectBase.EffectClassification.Negative)
+            if (ev.Player.Role == RoleTypeId.Tutorial
+                && ev.Player.GetCustomRoles().IsEmpty()
+                && ev.Effect.GetEffectType() is Exiled.API.Enums.EffectType.Flashed or Exiled.API.Enums.EffectType.Blinded)
                 ev.IsAllowed = false;
+        }
+
+        public void OnShooting(ShootingEventArgs ev)
+        {
+            if ((infiniteAmmoPlayers.Contains(ev.Player) || infiniteAmmoForAllPlayers)
+                && ev.Player.CurrentItem is Firearm gun)
+            {
+                gun.Ammo++;
+            }
         }
     }
 }

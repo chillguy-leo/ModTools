@@ -329,4 +329,69 @@ namespace ModTools
             }
         }
     }
+
+
+    [CommandHandler(typeof(RemoteAdminCommandHandler))]
+    public class InfiniteAmmo : ICommand
+    {
+        public string Command => "infinite";
+
+        public string[] Aliases => new string[] { "infiniteammo", "i" };
+
+        public string Description => "Toggle infinite ammo";
+
+        public static void ShowBroadcast(Player player)
+        {
+            if (Plugin.infiniteAmmoForAllPlayers || Plugin.infiniteAmmoPlayers.Contains(player))
+            {
+                player.Broadcast(5, "<color=#00ffc0>Infinite ammo enabled</color>");
+            } else
+            {
+                player.Broadcast(5, "<color=#ff4eac>Infinite ammo disabled</color>");
+            }
+        }
+
+        public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
+        {
+            if (!sender.CheckPermission(PlayerPermissions.GivingItems))
+            {
+                response = "You need spawn item permissions to use this command";
+                return false;
+            }
+            if (arguments.IsEmpty())
+            {
+                if (Player.TryGet(sender, out Player player))
+                {
+                    Plugin.infiniteAmmoPlayers.Toggle(player);
+                    response = Plugin.infiniteAmmoPlayers.Contains(player) ? "Enabled infite ammo" : "Disabled infinite ammo";
+                    ShowBroadcast(player);
+                    return true;
+                }
+                else
+                {
+                    response = "You must be in-game to use this command with no arguments";
+                    return false;
+                }
+            }
+            if (arguments.FirstElement().Equals("all", StringComparison.OrdinalIgnoreCase))
+            {
+                Plugin.infiniteAmmoForAllPlayers.Toggle();
+                response = Plugin.infiniteAmmoForAllPlayers ? "Enabled infinite ammo for all players" : "Disabled infintie ammo for all players";
+                foreach (Player player in Player.List)
+                {
+                    ShowBroadcast(player);
+                }
+                return true;
+            }
+            if (Player.TryGet(arguments.FirstElement(), out Player target))
+            {
+                Plugin.infiniteAmmoPlayers.Toggle(target);
+                response = Plugin.infiniteAmmoPlayers.Contains(target) ? $"Enabled infinite ammo for {target.Nickname}" : $"Disabled infinite ammo for {target.Nickname}";
+                ShowBroadcast(target);
+                return true;
+            }
+            response = "Usage: infinite <username, id, \"all\", or empty>";
+            return false;
+        }
+    }
 }

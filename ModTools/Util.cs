@@ -146,6 +146,19 @@ namespace ModTools
             };
         }
 
+        public static void Toggle<T>(this List<T> list, T elem)
+        {
+            if (!list.Remove(elem))
+            {
+                list.Add(elem);
+            }
+        }
+
+        public static void Toggle(this ref bool val)
+        {
+            val = !val;
+        }
+
     }
 
 
