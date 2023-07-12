@@ -345,7 +345,8 @@ namespace ModTools
             if (Plugin.infiniteAmmoForAllPlayers || Plugin.infiniteAmmoPlayers.Contains(player))
             {
                 player.Broadcast(5, "<color=#00ffc0>Infinite ammo enabled</color>");
-            } else
+            }
+            else
             {
                 player.Broadcast(5, "<color=#ff4eac>Infinite ammo disabled</color>");
             }
@@ -353,13 +354,18 @@ namespace ModTools
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (!sender.CheckPermission(PlayerPermissions.GivingItems))
+            if (!sender.CheckPermission(PlayerPermissions.ForceclassWithoutRestrictions)) // junior mod
             {
-                response = "You need spawn item permissions to use this command";
+                response = "You do not have sufficient permissions to use this command";
                 return false;
             }
             if (arguments.IsEmpty())
             {
+                if (!sender.CheckPermission(PlayerPermissions.GivingItems)) // admins+
+                {
+                    response = "Usage: infinite <\"all\" or player id/name>";
+                    return false;
+                }
                 if (Player.TryGet(sender, out Player player))
                 {
                     Plugin.infiniteAmmoPlayers.Toggle(player);
@@ -385,6 +391,13 @@ namespace ModTools
             }
             if (Player.TryGet(arguments.FirstElement(), out Player target))
             {
+                if (!sender.CheckPermission(PlayerPermissions.Effects) // sr mod +
+                    && Player.TryGet(sender, out Player playerSender)
+                    && playerSender == target)
+                {
+                    response = "You can't give yourself infintie ammo";
+                    return false;
+                }
                 Plugin.infiniteAmmoPlayers.Toggle(target);
                 response = Plugin.infiniteAmmoPlayers.Contains(target) ? $"Enabled infinite ammo for {target.Nickname}" : $"Disabled infinite ammo for {target.Nickname}";
                 ShowBroadcast(target);
