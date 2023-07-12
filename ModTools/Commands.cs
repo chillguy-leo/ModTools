@@ -389,13 +389,18 @@ namespace ModTools
                 }
                 return true;
             }
+            if (!sender.CheckPermission(PlayerPermissions.Effects))
+            {
+                response = "Usage: \"infinite all\"";
+                return false;
+            }
             if (Player.TryGet(arguments.FirstElement(), out Player target))
             {
-                if (!sender.CheckPermission(PlayerPermissions.Effects) // sr mod +
+                if (!sender.CheckPermission(PlayerPermissions.GivingItems) // admin+
                     && Player.TryGet(sender, out Player playerSender)
                     && playerSender == target)
                 {
-                    response = "You can't give yourself infintie ammo";
+                    response = "You cannot give infinite ammo to yourself";
                     return false;
                 }
                 Plugin.infiniteAmmoPlayers.Toggle(target);
