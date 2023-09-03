@@ -318,7 +318,7 @@ namespace ModTools
             var room = RoomInfo.GetRoomByName(string.Join("", arguments));
             if (room is null)
             {
-                response = "Can't find room by that name";
+                response = $"Can't find room by that name. Available rooms: \n{RoomInfo.roomsString}";
                 return false;
             }
             else
