@@ -120,12 +120,12 @@ namespace ModTools
 
         /// <summary>
         /// Find who the player is currently spectating, or null if this is not possible
-        /// 
+        ///
         /// Note: Nullable types would be preferable but aren't available before C# 8.0
         /// </summary>
         /// <param name="player">The spectator</param>
         /// <returns>The target of the spectator</returns>
-        public static Player FindSpectatingTargetOrNull(this Player player)
+        public static Player? FindSpectatingTargetOrNull(this Player player)
         {
             try
             {
