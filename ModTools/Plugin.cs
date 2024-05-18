@@ -23,7 +23,6 @@ namespace ModTools
         // (e.g. commands)
         public static Plugin Singleton { get; private set; }
 
-
         public override void OnEnabled()
         {
             // Set up the Singleton so we can easily get the instance with all the state
@@ -34,27 +33,11 @@ namespace ModTools
             Exiled.Events.Handlers.Player.Kicked += OnKick;
             Exiled.Events.Handlers.Player.ReceivingEffect += OnReceivingEffect;
             Exiled.Events.Handlers.Server.RestartingRound += OnRestartingRound;
+            Exiled.Events.Handlers.Server.WaitingForPlayers += OnWaitingForPlayers;
             Exiled.Events.Handlers.Player.SearchingPickup += OnPickup;
             Exiled.Events.Handlers.Player.Shooting += OnShooting;
 
             base.OnEnabled();
-        }
-
-        public override void OnDisabled()
-        {
-            // Deregister event handlers
-            Exiled.Events.Handlers.Player.Kicked -= OnKick;
-            Exiled.Events.Handlers.Player.ReceivingEffect -= OnReceivingEffect;
-            Exiled.Events.Handlers.Server.RestartingRound -= OnRestartingRound;
-            Exiled.Events.Handlers.Player.SearchingPickup -= OnPickup;
-            Exiled.Events.Handlers.Player.Shooting -= OnShooting;
-
-
-            // This will prevent commands and other classes from being able to access
-            // any state while the plugin is disabled
-            Singleton = null;
-
-            base.OnDisabled();
         }
 
         public DateTime serverStartTime = DateTime.Now;
@@ -136,6 +119,10 @@ namespace ModTools
             {
                 gun.Ammo++;
             }
+        }
+
+        public void OnWaitingForPlayers() {
+            Party.partyModeEnabled = false;
         }
     }
 }

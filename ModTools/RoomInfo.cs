@@ -19,6 +19,7 @@ namespace ModTools
             new RoomInfo(new string[] {"hczArmory","Armory2","HeavyArmory","ha"}, RoomType.HczArmory),
             new RoomInfo(new string[] {"hczB","hczCheckpointB"}, RoomType.HczEzCheckpointB),
             new RoomInfo(new string[] {"hczNuke","hn","NukeSilo"}, RoomType.HczNuke),
+            new RoomInfo(new string[] {"intercom","icom","ic"}, RoomType.EzIntercom),
             new RoomInfo(new string[] {"lczA","lczCheckpointA"}, RoomType.LczCheckpointA),
             new RoomInfo(new string[] {"lczArmory","Armory1","LightArmory","la"}, RoomType.LczArmory),
             new RoomInfo(new string[] {"lczB","lczCheckpointB"}, RoomType.LczCheckpointB),
