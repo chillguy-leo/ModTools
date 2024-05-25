@@ -25,7 +25,7 @@ namespace ModTools
             while (partyModeEnabled) {
                 foreach (var room in rooms) {
                     if (!partyModeEnabled) break;
-                    room.Color = UnityEngine.Random.ColorHSV(0,1,0,1,0.85f,1);
+                    room.Color = UnityEngine.Random.ColorHSV(0,1,0,1,0.95f,1);
                     yield return Timing.WaitForSeconds(0.07f);
                 }
             }
