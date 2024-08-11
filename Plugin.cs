@@ -23,6 +23,8 @@ namespace ModTools
         // (e.g. commands)
         public static Plugin Singleton { get; private set; }
 
+        private bool restartTriggered = false;
+
         public override void OnEnabled()
         {
             // Set up the Singleton so we can easily get the instance with all the state
@@ -36,23 +38,21 @@ namespace ModTools
             Exiled.Events.Handlers.Server.WaitingForPlayers += OnWaitingForPlayers;
             Exiled.Events.Handlers.Player.SearchingPickup += OnPickup;
             Exiled.Events.Handlers.Player.Shooting += OnShooting;
+            Exiled.Events.Handlers.Player.Verified += OnVerified;
 
             base.OnEnabled();
         }
 
         public DateTime serverStartTime = DateTime.Now;
-        public bool restartTriggered = false;
 
         public static List<Player> infiniteAmmoPlayers = new();
         public static bool infiniteAmmoForAllPlayers = false;
 
-        public void OnRestartingRound()
-        {
-            props.Clear();
-            infiniteAmmoPlayers.Clear();
-            infiniteAmmoForAllPlayers = false;
-            if (restartTriggered)
+        private void RestartIfNeeded() {
+            if (restartTriggered) {
+                Log.Info("Skipping redundant restart");
                 return;
+            }
             var dir = new DirectoryInfo("../.config/EXILED/Plugins");
             var updatedPlugins = dir.EnumerateFiles().Where(f => f.Name.EndsWith(".dll") && f.LastWriteTime > serverStartTime).Select(f => f.Name);
             if (updatedPlugins.IsEmpty())
@@ -61,10 +61,24 @@ namespace ModTools
             }
             else
             {
-                Log.Info($"The following plugins have been updated since last restart: {updatedPlugins}. Restarting the server to reload the plugins.");
                 restartTriggered = true;
+                Log.Info($"The following plugins have been updated since last restart: {updatedPlugins}. Restarting the server to reload the plugins.");
                 Server.Restart();
             }
+        }
+
+        public void OnVerified(VerifiedEventArgs ev) {
+            if (Player.List.Any(x => x != ev.Player && !x.IsNPC))
+                return;
+            RestartIfNeeded();
+        }
+
+        public void OnRestartingRound()
+        {
+            RestartIfNeeded();
+            props.Clear();
+            infiniteAmmoPlayers.Clear();
+            infiniteAmmoForAllPlayers = false;
         }
 
         public void OnKick(KickedEventArgs args)
