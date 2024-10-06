@@ -10,6 +10,7 @@ using UnityEngine;
 namespace ModTools
 {
     [CommandHandler(typeof(ClientCommandHandler))]
+    [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class ModMode : ICommand
     {
         public string Command => "modmode";
@@ -27,6 +28,8 @@ namespace ModTools
     }
 
     [CommandHandler(typeof(ClientCommandHandler))]
+    [CommandHandler(typeof(RemoteAdminCommandHandler))]
+
     public class ModModeHere : ICommand
     {
         public string Command => "modmodehere";
@@ -45,6 +48,8 @@ namespace ModTools
 
 
     [CommandHandler(typeof(ClientCommandHandler))]
+    [CommandHandler(typeof(RemoteAdminCommandHandler))]
+
     public class UnModMode : ICommand
     {
         public string Command => "unmodmode";
@@ -62,6 +67,8 @@ namespace ModTools
     }
 
     [CommandHandler(typeof(ClientCommandHandler))]
+    [CommandHandler(typeof(RemoteAdminCommandHandler))]
+
     public class ModModeTeleport : ICommand
     {
         public string Command => "modmodeteleport";
@@ -141,6 +148,8 @@ namespace ModTools
     }
 
     [CommandHandler(typeof(ClientCommandHandler))]
+    [CommandHandler(typeof(RemoteAdminCommandHandler))]
+
     public class ToggleGodmode : ICommand
     {
         public string Command => "godmode";
@@ -178,6 +187,8 @@ namespace ModTools
     }
 
     [CommandHandler(typeof(ClientCommandHandler))]
+    [CommandHandler(typeof(RemoteAdminCommandHandler))]
+
     public class Die : ICommand
     {
         public string Command => "die";
@@ -206,6 +217,7 @@ namespace ModTools
         }
     }
 
+    [CommandHandler(typeof(ClientCommandHandler))]
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
     public class Prop : ICommand
     {
@@ -245,7 +257,7 @@ namespace ModTools
             if (itemType is ItemType.Flashlight)
             {
                 var flashlight = (Flashlight)Item.Create(ItemType.Flashlight);
-                flashlight.Active = true;
+                flashlight.IsEmittingLight = true;
                 var pickup = flashlight.CreatePickup(player.Position, player.GameObject.transform.rotation, true);
                 pickup.Scale = -1 * scale * Vector3.one;
                 Plugin.props.Add(pickup);
@@ -262,6 +274,8 @@ namespace ModTools
     }
 
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
+    [CommandHandler(typeof(ClientCommandHandler))]
+
     public class PurgeProps : ICommand
     {
         public string Command => "purgeprops";
@@ -293,6 +307,8 @@ namespace ModTools
 
 
     [CommandHandler(typeof(ClientCommandHandler))]
+    [CommandHandler(typeof(RemoteAdminCommandHandler))]
+
     public class GotoRoom : ICommand
     {
         public string Command => "gotoroom";
@@ -332,13 +348,14 @@ namespace ModTools
 
 
     [CommandHandler(typeof(RemoteAdminCommandHandler))]
+
     public class InfiniteAmmo : ICommand
     {
         public string Command => "infinite";
 
         public string[] Aliases => new string[] { "infiniteammo", "i" };
 
-        public string Description => "Toggle infinite ammo";
+        public string Description => "Toggle infinite ammo for a player id or all players";
 
         public static void ShowBroadcast(Player player)
         {
