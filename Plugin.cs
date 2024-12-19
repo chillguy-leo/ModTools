@@ -39,6 +39,7 @@ namespace ModTools
             Exiled.Events.Handlers.Player.SearchingPickup += OnPickup;
             Exiled.Events.Handlers.Player.Shooting += OnShooting;
             Exiled.Events.Handlers.Player.Verified += OnVerified;
+            Exiled.Events.Handlers.Player.TriggeringTesla += TelsaImmune.OnTriggeringTesla;
 
             base.OnEnabled();
         }
@@ -97,6 +98,8 @@ namespace ModTools
                 moderator.Broadcast(10, message, Broadcast.BroadcastFlags.AdminChat);
             }
         }
+
+
 
         public void OnPickup(SearchingPickupEventArgs ev)
         {
