@@ -13,6 +13,9 @@ using System.Linq;
 
 namespace ModTools
 {
+    using InventorySystem.Items.Firearms;
+    using InventorySystem.Items.Firearms.Modules;
+
     public class Plugin : Plugin<Config, Translations>
     {
         public override string Name => "Mod Tools";
@@ -131,11 +134,26 @@ namespace ModTools
 
         public void OnShooting(ShootingEventArgs ev)
         {
-            if ((infiniteAmmoPlayers.Contains(ev.Player) || infiniteAmmoForAllPlayers)
-                && ev.Player.CurrentItem is Firearm gun)
+            if (!infiniteAmmoPlayers.Contains(ev.Player) && !infiniteAmmoForAllPlayers)
+                return;
+            
+            if (ev.Item.Base is not Firearm firearm)
+                return;
+
+            IPrimaryAmmoContainerModule? ammoModule = default;
+            foreach (ModuleBase module in firearm.Modules)
             {
-                gun.Ammo++;
+                if (module is IPrimaryAmmoContainerModule primary)
+                {
+                    ammoModule = primary;
+                    break;
+                }
             }
+
+            if (ammoModule is null)
+                return;
+
+            ammoModule.ServerModifyAmmo(ammoModule.AmmoMax - ammoModule.AmmoStored);
         }
 
         public void OnWaitingForPlayers() {

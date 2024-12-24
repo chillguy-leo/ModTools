@@ -37,7 +37,6 @@ namespace ModTools
             new RoomInfo(new string[] {"SCP330","330","Candy","CandyRoom","c","cr"}, RoomType.Lcz330),
             new RoomInfo(new string[] {"SCP914","914"}, RoomType.Lcz914),
             new RoomInfo(new string[] {"SCP939","939","Dog"}, RoomType.Hcz939),
-            new RoomInfo(new string[] {"servers","server"}, RoomType.HczServers),
             new RoomInfo(new string[] {"surface"}, RoomType.Surface),
             new RoomInfo(new string[] {"surfaceNuke","sn"}, RoomType.HczNuke),
             new RoomInfo(new string[] {"Tesla","TeslaGate", "tg"}, RoomType.HczTesla),
