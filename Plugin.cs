@@ -110,13 +110,13 @@ namespace ModTools
             {
                 if (ev.Player.CheckPermission(PlayerPermissions.GivingItems))
                 {
-                    ev.Player.ShowHint("Destroying prop");
+                    ev.Player.Broadcast(3, "Destroying prop");
                     ev.Pickup.Destroy();
                     ev.IsAllowed = false;
                 }
                 else
                 {
-                    ev.Player.ShowHint("Props can't be picked up");
+                    ev.Player.Broadcast(3, "Props can't be picked up");
                     ev.IsAllowed = false;
                 }
             }
