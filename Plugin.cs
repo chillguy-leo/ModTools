@@ -13,6 +13,9 @@ using System.Linq;
 
 namespace ModTools
 {
+    using InventorySystem.Items.Firearms;
+    using InventorySystem.Items.Firearms.Modules;
+
     public class Plugin : Plugin<Config, Translations>
     {
         public override string Name => "Mod Tools";
@@ -107,13 +110,13 @@ namespace ModTools
             {
                 if (ev.Player.CheckPermission(PlayerPermissions.GivingItems))
                 {
-                    ev.Player.ShowHint("Destroying prop");
+                    ev.Player.Broadcast(3, "Destroying prop");
                     ev.Pickup.Destroy();
                     ev.IsAllowed = false;
                 }
                 else
                 {
-                    ev.Player.ShowHint("Props can't be picked up");
+                    ev.Player.Broadcast(3, "Props can't be picked up");
                     ev.IsAllowed = false;
                 }
             }
@@ -131,11 +134,26 @@ namespace ModTools
 
         public void OnShooting(ShootingEventArgs ev)
         {
-            if ((infiniteAmmoPlayers.Contains(ev.Player) || infiniteAmmoForAllPlayers)
-                && ev.Player.CurrentItem is Firearm gun)
+            if (!infiniteAmmoPlayers.Contains(ev.Player) && !infiniteAmmoForAllPlayers)
+                return;
+            
+            if (ev.Item.Base is not Firearm firearm)
+                return;
+
+            IPrimaryAmmoContainerModule? ammoModule = default;
+            foreach (ModuleBase module in firearm.Modules)
             {
-                gun.Ammo++;
+                if (module is IPrimaryAmmoContainerModule primary)
+                {
+                    ammoModule = primary;
+                    break;
+                }
             }
+
+            if (ammoModule is null)
+                return;
+
+            ammoModule.ServerModifyAmmo(ammoModule.AmmoMax - ammoModule.AmmoStored);
         }
 
         public void OnWaitingForPlayers() {
